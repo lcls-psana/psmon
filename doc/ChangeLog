@@ -11,6 +11,11 @@ Package author: Dan Damiani
 Please describe any modifications that you made to the package in the
 reverse time order.
 
+Tag: V00-01-13
+2015-10-28 Dan Damiani
+- Modify behavior of the local plots functionality to better handle
+  keyboard interrupts when run in ipython
+
 Tag: V00-01-12
 2015-08-10 Dan Damiani
 - Fix a missing-import bug with the HistHelper and HistOverlayHelper classes

@@ -30,7 +30,8 @@ class _Publish(object):
             local=config.APP_LOCAL,
             renderer=config.APP_CLIENT,
             rate=config.APP_RATE,
-            recv_limit=config.APP_RECV_LIMIT
+            recv_limit=config.APP_RECV_LIMIT,
+            daemon=config.APP_INTERACTIVE
         ):
         self.local = local
         self.disabled = False
@@ -46,7 +47,7 @@ class _Publish(object):
             recv_limit,
             None,
             renderer,
-            False
+            daemon
         )
         self.plot_opts = app.PlotInfo()
         self.active_clients = {}

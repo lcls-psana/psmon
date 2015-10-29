@@ -1,3 +1,4 @@
+import sys
 import logging
 from collections import namedtuple
 
@@ -14,6 +15,11 @@ LOG_LEVEL = 'INFO'
 LOG_LEVEL_ROOT = logging.WARN
 LOG_FORMAT = '[%(levelname)-8s] %(message)s' #'%(asctime)s:%(levelname)s:%(message)s'
 ### GENERAL APP CONFIG ###
+APP_INTERACTIVE = False
+if hasattr(sys, 'ps1'):
+    APP_INTERACTIVE = True
+elif sys.flags.interactive:
+    APP_INTERACTIVE = True
 APP_SERVER = 'localhost'
 APP_PORT = 12301
 APP_COMM_OFFSET = 1
