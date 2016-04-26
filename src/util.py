@@ -1,5 +1,8 @@
+import os
+import sys
 import numpy as np
 from itertools import chain, izip
+from contextlib import contextmanager
 
 
 def is_py_iter(obj):
@@ -57,3 +60,18 @@ def window_ratio(min_res, max_res):
 
         return int(pref_x), int(pref_y)
     return window_ratio_calc
+
+@contextmanager
+def redirect_stdout():
+  sys.stdout.flush()
+  sys.stderr.flush()
+  newstdout = os.dup(1)
+  newstderr = os.dup(2)
+  with open(os.devnull,'wb') as devnull:
+    os.dup2(devnull.fileno(), 1)
+    os.dup2(devnull.fileno(), 2)
+    try:
+      yield
+    finally:
+      sys.stdout = os.fdopen(newstdout, 'w')
+      sys.stderr = os.fdopen(newstderr, 'w')

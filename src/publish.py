@@ -1,5 +1,5 @@
 import sys
-from psmon import app, config, client
+from psmon import app, config, client, util
 
 
 class _Publish(object):
@@ -39,6 +39,7 @@ class _Publish(object):
         self._publisher = app.ZMQPublisher()
         self._reset_listener = app.ZMQListener(self._publisher.comm_socket)
         self._spawner = client.spawn_process
+        self._redirect = util.redirect_stdout
         self.client_opts = app.ClientInfo(
             None,
             None,
@@ -66,7 +67,8 @@ class _Publish(object):
         """
         if not self.initialized and not self.disabled:
             try:
-                from mpi4py import MPI
+                with self._redirect():
+                  from mpi4py import MPI
                 if MPI.COMM_WORLD.Get_rank() == 0:
                     self.init()
                 else:

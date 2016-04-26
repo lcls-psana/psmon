@@ -3,12 +3,14 @@ import socket
 import logging
 import threading
 
-import pyqtgraph as pg
-from pyqtgraph.Qt import QtCore, QtGui
+from psmon import app, config, util
 
-import psmon.plotpyqt as psplot
-from psmon.plotpyqt import PyQtClientTypeError
-from psmon import app, config
+# Suppress mpi setup output
+with util.redirect_stdout():
+  import pyqtgraph as pg
+  from pyqtgraph.Qt import QtCore, QtGui
+  import psmon.plotpyqt as psplot
+  from psmon.plotpyqt import PyQtClientTypeError
 
 
 LOG = logging.getLogger(__name__)
