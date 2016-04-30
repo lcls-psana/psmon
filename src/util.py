@@ -1,6 +1,7 @@
 import os
 import sys
 import numpy as np
+import collections
 from itertools import chain, izip
 from contextlib import contextmanager
 
@@ -11,6 +12,28 @@ def is_py_iter(obj):
     """
     return hasattr(obj, '__iter__') and not isinstance(obj, np.ndarray)
 
+
+def py_length(obj):
+    """
+    Returns of the length of the object. Always '1' for scalar types
+    """
+    if isinstance(obj, (collections.Sequence, np.ndarray)):
+        return len(obj)
+    else:
+        return 1
+
+
+def convert_to_array(obj):
+    """
+    Converts the object into a numpy array if needed. Scalars become a
+    1-dim array
+    """
+    if isinstance(obj, np.ndarray):
+        return obj
+    elif isinstance(obj, collections.Sequence):
+        return np.array(obj)
+    else:
+        return np.array([obj])
 
 def arg_inflate(index, *args):
     args = list(args)
@@ -63,15 +86,15 @@ def window_ratio(min_res, max_res):
 
 @contextmanager
 def redirect_stdout():
-  sys.stdout.flush()
-  sys.stderr.flush()
-  stdoutfd = os.dup(sys.stdout.fileno())
-  stderrfd = os.dup(sys.stderr.fileno())
-  with open(os.devnull,'wb') as devnull:
-    os.dup2(devnull.fileno(), sys.stdout.fileno())
-    os.dup2(devnull.fileno(), sys.stderr.fileno())
-    try:
-      yield
-    finally:
-      os.dup2(stdoutfd, sys.stdout.fileno())
-      os.dup2(stderrfd, sys.stderr.fileno())
+    sys.stdout.flush()
+    sys.stderr.flush()
+    stdoutfd = os.dup(sys.stdout.fileno())
+    stderrfd = os.dup(sys.stderr.fileno())
+    with open(os.devnull,'wb') as devnull:
+        os.dup2(devnull.fileno(), sys.stdout.fileno())
+        os.dup2(devnull.fileno(), sys.stderr.fileno())
+        try:
+            yield
+        finally:
+            os.dup2(stdoutfd, sys.stdout.fileno())
+            os.dup2(stderrfd, sys.stderr.fileno())
