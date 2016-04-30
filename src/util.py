@@ -65,13 +65,13 @@ def window_ratio(min_res, max_res):
 def redirect_stdout():
   sys.stdout.flush()
   sys.stderr.flush()
-  newstdout = os.dup(1)
-  newstderr = os.dup(2)
+  stdoutfd = os.dup(sys.stdout.fileno())
+  stderrfd = os.dup(sys.stderr.fileno())
   with open(os.devnull,'wb') as devnull:
-    os.dup2(devnull.fileno(), 1)
-    os.dup2(devnull.fileno(), 2)
+    os.dup2(devnull.fileno(), sys.stdout.fileno())
+    os.dup2(devnull.fileno(), sys.stderr.fileno())
     try:
       yield
     finally:
-      sys.stdout = os.fdopen(newstdout, 'w')
-      sys.stderr = os.fdopen(newstderr, 'w')
+      os.dup2(stdoutfd, sys.stdout.fileno())
+      os.dup2(stderrfd, sys.stderr.fileno())
