@@ -14,6 +14,7 @@ setup(
     install_requires=[
         'pyqtgraph',
         'pyzmq',
+        'ipython',
     ],
     entry_points={
         'console_scripts': [
