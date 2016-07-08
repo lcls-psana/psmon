@@ -349,13 +349,16 @@ class HistClient(PlotClient):
 
 
 class MultiPlotClient(object):
-    def __init__(self, init, framegen, info, rate):
+    def __init__(self, init, framegen, info, rate=1, **kwargs):
         if init.use_windows:
             self.plots = [type_getter(type(data_obj))(data_obj, None, info, rate) for data_obj in init.data_con]
         else:
-            self.fig_win = pg.GraphicsLayoutWidget()
-            self.fig_win.setWindowTitle(init.title)
-            self.fig_win.show()
+            if 'figwin' in kwargs:
+                self.fig_win = kwargs['figwin'].addLayout()
+            else:
+                self.fig_win = pg.GraphicsLayoutWidget()
+                self.fig_win.setWindowTitle(init.title)
+                self.fig_win.show()
             ratio_calc = window_ratio(config.PYQT_SMALL_WIN, config.PYQT_LARGE_WIN)
             if init.ncols is None:
                 self.fig_win.resize(*ratio_calc(init.size, 1))
