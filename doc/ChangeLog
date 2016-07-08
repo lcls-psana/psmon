@@ -11,6 +11,11 @@ Package author: Dan Damiani
 Please describe any modifications that you made to the package in the
 reverse time order.
 
+Tag: V00-01-14
+2016-07-07 Dan Damiani
+- Suppress confusing info printouts that occur when first importing mpi
+- Fix for bug when creating a multiplot of multiplots
+
 Tag: V00-01-13
 2015-10-28 Dan Damiani
 - Modify behavior of the local plots functionality to better handle
