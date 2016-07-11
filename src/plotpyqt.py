@@ -354,7 +354,15 @@ class MultiPlotClient(object):
             self.plots = [type_getter(type(data_obj))(data_obj, None, info, rate) for data_obj in init.data_con]
         else:
             if 'figwin' in kwargs:
-                self.fig_win = kwargs['figwin'].addLayout()
+                self.outer_win = kwargs['figwin'].addLayout()
+                # Add layout element for the title that will span all the multiplots columns
+                self.title_layout = self.outer_win.addLayout()
+                self.outer_win.layout.setRowStretchFactor(self.outer_win.currentRow, 0)
+                self.title_layout.addLabel(init.title, size='11pt', bold=True)
+                self.outer_win.nextRow()
+                # Create an inner 'fig_win' layout for the multiplots themselves
+                self.fig_win = self.outer_win.addLayout()
+                self.outer_win.layout.setRowStretchFactor(self.outer_win.currentRow, 1)
             else:
                 self.fig_win = pg.GraphicsLayoutWidget()
                 self.fig_win.setWindowTitle(init.title)
