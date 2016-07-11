@@ -29,8 +29,8 @@ def main():
             Lusi.IpmFexV1.channel,
             XYPlotHelper(
                 'xcs-ipm-02-0v2',
-                xlabel={'axis_title': 'chan 0', 'axis_units': 'V'},
-                ylabel={'axis_title': 'chan 2', 'axis_units': 'V'},
+                xlabel={'text': 'chan 0', 'units': 'V'},
+                ylabel={'text': 'chan 2', 'units': 'V'},
                 format='.',
                 pubrate=myrate
             ),
@@ -39,8 +39,8 @@ def main():
                 100,
                 0.0,
                 0.6,
-                xlabel={'axis_title': 'chan 0', 'axis_units': 'V'},
-                ylabel={'axis_title': 'shots'},
+                xlabel={'text': 'chan 0', 'units': 'V'},
+                ylabel={'text': 'shots'},
                 pubrate=myrate
             ),
         ),
@@ -50,8 +50,8 @@ def main():
             Lusi.IpmFexV1.channel,
             XYPlotHelper(
                 'xcs-ipm-04-0v2',
-                xlabel={'axis_title': 'chan 0', 'axis_units': 'V'},
-                ylabel={'axis_title': 'chan 2', 'axis_units': 'V'},
+                xlabel={'text': 'chan 0', 'units': 'V'},
+                ylabel={'text': 'chan 2', 'units': 'V'},
                 format='.',
                 pubrate=myrate
             ),
@@ -60,8 +60,8 @@ def main():
                 100,
                 0.0,
                 1.2,
-                xlabel={'axis_title': 'chan 0', 'axis_units': 'V'},
-                ylabel={'axis_title': 'shots'},
+                xlabel={'text': 'chan 0', 'units': 'V'},
+                ylabel={'text': 'shots'},
                 pubrate=myrate
             ),
         ),
@@ -69,8 +69,8 @@ def main():
     multi_image_helper = MultiImageHelper('xcs-multi-image', 2, pubrate=myrate)
     over_histo_helper = HistOverlayHelper(
         'xcs-overlay-histo',
-        xlabel={'axis_title': 'chan 0', 'axis_units': 'V'},
-        ylabel={'axis_title': 'shots'},
+        xlabel={'text': 'chan 0', 'units': 'V'},
+        ylabel={'text': 'shots'},
         pubrate=myrate
     )
     # Create histograms in the overlay for each ipm

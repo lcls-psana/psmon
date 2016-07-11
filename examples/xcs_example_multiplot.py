@@ -79,8 +79,8 @@ def main():
                 topic+' chan 0 vs 2',
                 numpy.array(xvals),
                 numpy.array(yvals),
-                xlabel={'axis_title': 'chan 0', 'axis_units': 'V'},
-                ylabel={'axis_title': 'chan 2', 'axis_units': 'V'},
+                xlabel={'text': 'chan 0', 'units': 'V'},
+                ylabel={'text': 'chan 2', 'units': 'V'},
                 formats='.'
             )
             multi_plot_data.add(ipm_data0v2)
