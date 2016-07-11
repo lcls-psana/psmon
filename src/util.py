@@ -84,6 +84,13 @@ def window_ratio(min_res, max_res):
         return int(pref_x), int(pref_y)
     return window_ratio_calc
 
+
+def merge_dicts(base, updates):
+    new_dict = base.copy()
+    new_dict.update(updates)
+    return new_dict
+
+
 @contextmanager
 def redirect_stdout():
     sys.stdout.flush()

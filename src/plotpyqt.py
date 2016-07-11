@@ -8,7 +8,7 @@ import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore, QtGui
 
 from psmon import config
-from psmon.util import is_py_iter, arg_inflate_tuple, window_ratio
+from psmon.util import is_py_iter, arg_inflate_tuple, window_ratio, merge_dicts
 from psmon.plots import Hist, Image, XYPlot, MultiPlot
 from psmon.format import parse_fmt_xyplot, parse_fmt_hist, parse_fmt_leg
 
@@ -111,25 +111,37 @@ class PlotClient(object):
     def set_title_axis(self, axis_name, axis_label_data):
         """
         Function for setting a label on the axis specified by 'axis_name'. The label data can be either a simple
-        string or a dictionary of keywords that is passed on to the pyqtgraph setLabel function.
+        string or a dictionary of keywords that is passed on to the pyqtgraph setLabel function. Also allows
+        additional keywords are treated as CSS style options by pyqtgraph
 
         Supported keywords:
-        - axis_title
-        - axis_units
-        - axis_unit_prefix
+        - text
+        - units
+        - unitPrefix
+        Optional keywords (CSS style options):
+        - font-size
+        - font-family
+        - font-style
+        - font-weight
+        - etc...
         """
         if isinstance(axis_label_data, collections.Mapping):
-            self._set_title_axis(axis_name, **axis_label_data)
+            arg_list = ['text', 'units', 'unitPrefix']
+            axis_args = [ axis_label_data.get(value, None) for value in arg_list ]
+            axis_kwargs = { key: value for key, value in axis_label_data.items() if key not in arg_list }
+            if axis_kwargs:
+                axis_kwargs = merge_dicts(config.PYQT_AXIS_FMT, axis_kwargs)
+            self._set_title_axis(axis_name, *axis_args, **axis_kwargs)
         else:
             self._set_title_axis(axis_name, axis_label_data)
 
-    def _set_title_axis(self, axis_name, axis_title, axis_units=None, axis_unit_prefix=None):
+    def _set_title_axis(self, axis_name, axis_title, axis_units=None, axis_unit_prefix=None, **kwargs):
         """
         Implementation function for creating a label for a specific axis - takes an axis_name, axis_title and optional
         axis_units, and axis_unit_prefix keyword args, which match to those for pyqtgraph's set label
         """
         if axis_title is not None:
-            self.plot_view.setLabel(axis_name, text=axis_title, units=axis_units, unitPrefix=axis_unit_prefix)
+            self.plot_view.setLabel(axis_name, text=axis_title, units=axis_units, unitPrefix=axis_unit_prefix, **kwargs)
 
     def set_aspect(self, lock, ratio):
         """

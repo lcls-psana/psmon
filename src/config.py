@@ -46,6 +46,7 @@ APP_RESERVED_TOPIC = 'psmon-internal'
 PYQT_SMALL_WIN = Resolution(640, 480)
 PYQT_LARGE_WIN = Resolution(3840, 2880)
 PYQT_BORDERS = {'color': (150, 150, 150), 'width': 1.0}
+PYQT_AXIS_FMT = {'color': '#969696', 'font-size': '10pt', 'font-family': 'Sans'}
 PYQT_PLOT_PEN = None
 PYQT_PLOT_SYMBOL = 'o'
 PYQT_COLOR_PALETTE = 'thermal'
