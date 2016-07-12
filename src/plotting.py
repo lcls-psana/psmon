@@ -103,6 +103,102 @@ class Image(Manager):
             self.use_pedestal = True
 
 
+class StripChart(OverlayManager):
+    def __init__(self, topic, title=None, xlabel=None, ylabel=None, leg_offset=None, pubrate=None, publisher=None):
+        super(StripChart, self).__init__(topic, title, pubrate, publisher)
+        self._indices = []
+        self._xdata = []
+        self._ydata = []
+        self._data = plots.XYPlot(
+            None,
+            self._title,
+            [],
+            [],
+            xlabel=xlabel,
+            ylabel=ylabel,
+            leg_label=self._names,
+            leg_offset=leg_offset,
+            formats=self._formats,
+        )
+
+    def npoints(self, name, npoints=None):
+        index = self._get_index(name)
+        if npoints is None:
+            return self._xdata[index].size
+        else:
+            npoints = int(npoints)
+            if npoints > 0:
+                if npoints > self._xdata[index].size:
+                    self._xdata[index] = np.resize(self._xdata[index], npoints)
+                    self._ydata[index] = np.resize(self._ydata[index], npoints)
+                elif npoints < self._xdata[index].size:
+                    self._xdata[index] = np.copy(self._xdata[index][-npoints:])
+                    self._ydata[index] = np.copy(self._ydata[index][-npoints:])
+                self._data.xdata[index] = self._xdata[index][:self._indices[index]]
+                self._data.ydata[index] = self._ydata[index][:self._indices[index]]
+            else:
+                raise ValueError('npoints must be greater than 0')
+
+    def xdata(self, name):
+        return self._xdata[self._get_index(name)]
+
+    def ydata(self, name):
+        return self._ydata[self._get_index(name)]
+
+    def make_plot(self, name, npoints, formatter='-'):
+        npoints = int(npoints)
+        if npoints <= 0:
+            raise ValueError('npoints must be greater than 0')
+        index, new_plot = self._make(name)
+        if new_plot:
+            self._indices.append(0)
+            self._xdata.append(np.zeros(npoints))
+            self._ydata.append(np.zeros(npoints))
+            self._data.xdata.append(self._xdata[index][:self._indices[index]])
+            self._data.ydata.append(self._ydata[index][:self._indices[index]])
+            self._formats.append(formatter)
+        else:
+            self._indices[index] = 0
+            self._xdata[index] = np.zeros(npoints)
+            self._ydata[index] = np.zeros(npoints)
+            self._data.xdata[index] = self._xdata[index][:self._indices[index]]
+            self._data.ydata[index] = self._ydata[index][:self._indices[index]]
+            self._formats[index] = formatter
+
+    def add(self, name, point_value):
+        index = self._get_index(name)
+        insert_size = util.py_length(point_value)
+        begin = self._indices[index]
+        end = self._indices[index]+insert_size
+        roll_size = end - self._xdata[index][0] - self._xdata[index].size
+        if insert_size >= self._xdata[index].size:
+            self._xdata[index] = np.arange(begin, end)[-self._xdata[index].size:]
+            self._ydata[index] = point_value[-self._ydata[index].size:]
+        elif roll_size > 0:
+            self._xdata[index] = np.roll(self._xdata[index], -roll_size)
+            self._ydata[index] = np.roll(self._ydata[index], -roll_size)
+            self._xdata[index][-insert_size:] = np.arange(begin, end)
+            self._ydata[index][-insert_size:] = point_value
+        else:
+            self._xdata[index][begin:end] = np.arange(begin, end)
+            self._ydata[index][begin:end] = point_value
+        self._indices[index] += insert_size
+        self._data.xdata[index] = self._xdata[index][:self._indices[index]]
+        self._data.ydata[index] = self._ydata[index][:self._indices[index]]
+
+    def clear(self, name=None):
+        if name is None:
+            for index in xrange(self._noverlay):
+                self._indices[index] = 0
+                self._data.xdata[index] = self._xdata[index][:self._indices[index]]
+                self._data.ydata[index] = self._ydata[index][:self._indices[index]]
+        else:
+            index = self._get_index(name)
+            self._indices[index] = 0
+            self._data.xdata[index] = self._xdata[index][:self._indices[index]]
+            self._data.ydata[index] = self._ydata[index][:self._indices[index]]
+
+
 class LinePlot(OverlayManager):
     def __init__(self, topic, title=None, xlabel=None, ylabel=None, leg_offset=None, pubrate=None, publisher=None):
         super(LinePlot, self).__init__(topic, title, pubrate, publisher)
@@ -184,6 +280,9 @@ class ScatterPlot(OverlayManager):
         return self._ydata[self._get_index(name)]
 
     def make_plot(self, name, size=1000, formatter='.'):
+        size = int(size)
+        if size <= 0:
+            raise ValueError('initial size must be greater than 0')
         index, new_plot = self._make(name)
         if new_plot:
             self._indices.append(0)
