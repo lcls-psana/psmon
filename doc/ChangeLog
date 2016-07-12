@@ -11,6 +11,12 @@ Package author: Dan Damiani
 Please describe any modifications that you made to the package in the
 reverse time order.
 
+Tag: V00-01-15
+2016-07-11 Dan Damiani
+- Improved helper classes in the 'plotting' module
+- Nested multiplots now add a title for the entire nested multiplot
+- Fix a bug when specifying format options for x and y labels
+
 Tag: V00-01-14
 2016-07-07 Dan Damiani
 - Suppress confusing info printouts that occur when first importing mpi
@@ -33,7 +39,7 @@ Tag: V00-01-11
 2015-07-31 Dan Damiani
 - Added a strip chart helper class
 - Helper classes moved into their own helper module
-- IPython embed feature used fo psconsole tool
+- IPython embed feature used for psconsole tool
 - Fixed several bugs with request listener in publish module
 
 Tag: V00-01-10
