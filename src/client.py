@@ -76,7 +76,8 @@ def parse_cmdline():
         help='the fixed y range for any plots'
     )
 
-    parser.add_argument(
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument(
         '-z',
         '--z-range',
         metavar='Z_RANGE',
@@ -84,6 +85,13 @@ def parse_cmdline():
         nargs=2,
         default=config.APP_ZRANGE,
         help='the fixed z range for any plots'
+    )
+
+    group.add_argument(
+        '--auto-z-range',
+        action='store_true',
+        default=config.APP_AUTO_ZRANGE,
+        help='enable auto scaling of z range'
     )
 
     parser.add_argument(
@@ -203,7 +211,8 @@ def main():
             fore_col=args.text_color,
             interpol=args.interpolation,
             palette=args.palette,
-            grid=args.grid
+            grid=args.grid,
+            auto_zrange=args.auto_z_range
         )
 
         # creat the tcp socket urls from cli parameters

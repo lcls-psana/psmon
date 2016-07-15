@@ -65,7 +65,8 @@ class PlotInfo(Info):
         bkg_col=config.APP_BKG_COLOR,
         interpol=config.APP_IMG_INTERPOLATION,
         palette=config.APP_PALETTE,
-        grid=config.APP_GRID
+        grid=config.APP_GRID,
+        auto_zrange=config.APP_AUTO_ZRANGE
     ):
         super(PlotInfo, self).__init__()
         self.xrange = xrange
@@ -79,6 +80,7 @@ class PlotInfo(Info):
         self.interpol = interpol
         self.palette = palette
         self.grid = grid
+        self.auto_zrange = auto_zrange
 
 
 class MessageHandler(object):
