@@ -37,7 +37,10 @@ class PyQtClientTypeError(Exception):
 
 class PlotClient(object):
     def __init__(self, init, framegen, info, rate, **kwargs):
+        # set the title
+        self.title = init.title
         if 'figwin' in kwargs:
+            self.is_win = False
             self.fig_win = kwargs['figwin']
             self.fig_layout = self.fig_win.addLayout()
             self.title_layout = self.fig_layout.addLayout()
@@ -45,6 +48,7 @@ class PlotClient(object):
             self.title_layout.addLabel(init.title, size='11pt', bold=True)
             self.fig_layout.nextRow()
         else:
+            self.is_win = True
             self.fig_win = pg.GraphicsLayoutWidget()
             self.fig_win.setWindowTitle(init.title)
             self.fig_win.show()
@@ -93,6 +97,7 @@ class PlotClient(object):
             self.set_title(data.ts)
             self.set_title_axis('bottom', data.xlabel)
             self.set_title_axis('left', data.ylabel)
+            self.set_win_title(data.title)
         return self.update_sub(data)
 
     def animate(self):
@@ -103,6 +108,18 @@ class PlotClient(object):
         self.update(self.framegen.next())
         # setup timer for calling next update call
         QtCore.QTimer.singleShot(self.rate_ms, self.ani_func)
+
+    def set_win_title(self, title):
+        """
+        Updates the window title of the plot or if it is an embedded in a MultiPlot the title layout label.
+        """
+        if title != self.title:
+            if self.is_win:
+                self.fig_win.setWindowTitle(title)
+            else:
+                # first item of the title_layout is the textbox
+                self.title_layout.getItem(0,0).setText(title, size='11pt', bold=True)
+            self.title = title
 
     def set_title(self, title):
         if title is not None:
@@ -364,10 +381,14 @@ class HistClient(PlotClient):
 
 class MultiPlotClient(object):
     def __init__(self, init, framegen, info, rate=1, **kwargs):
+        # Set the title
+        self.title = init.title
         if init.use_windows:
+            self.is_win = None
             self.plots = [type_getter(type(data_obj))(data_obj, None, info, rate) for data_obj in init.data_con]
         else:
             if 'figwin' in kwargs:
+                self.is_win = False
                 self.outer_win = kwargs['figwin'].addLayout()
                 # Add layout element for the title that will span all the multiplots columns
                 self.title_layout = self.outer_win.addLayout()
@@ -378,6 +399,7 @@ class MultiPlotClient(object):
                 self.fig_win = self.outer_win.addLayout()
                 self.outer_win.layout.setRowStretchFactor(self.outer_win.currentRow, 1)
             else:
+                self.is_win = True
                 self.fig_win = pg.GraphicsLayoutWidget()
                 self.fig_win.setWindowTitle(init.title)
                 self.fig_win.show()
@@ -406,8 +428,22 @@ class MultiPlotClient(object):
         self.info = info
         self.multi_plot = True
 
+    def set_win_title(self, title):
+        """
+        Updates the window title of the MultiPlot or if it is an embedded in another MultiPlot then it
+        updates title layout items label.
+        """
+        if title != self.title and self.is_win is not None:
+            if self.is_win:
+                self.fig_win.setWindowTitle(title)
+            else:
+                # first item of the title_layout is the textbox
+                self.title_layout.getItem(0,0).setText(title, size='11pt', bold=True)
+            self.title = title
+
     def update(self, data):
         if data is not None:
+            self.set_win_title(data.title)
             for plot, plot_data in zip(self.plots, data.data_con):
                 plot.update(plot_data)
 
