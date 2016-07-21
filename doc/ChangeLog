@@ -11,6 +11,11 @@ Package author: Dan Damiani
 Please describe any modifications that you made to the package in the
 reverse time order.
 
+Tag: V00-01-16
+2016-07-14 Dan Damiani
+- Added option for z-axis auto-ranging
+- Plot titles now update when changed after the initial plot is received
+
 Tag: V00-01-15
 2016-07-11 Dan Damiani
 - Improved helper classes in the 'plotting' module
