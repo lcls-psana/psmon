@@ -8,7 +8,7 @@ import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore, QtGui
 
 from psmon import config
-from psmon.util import is_py_iter, arg_inflate_tuple, window_ratio, merge_dicts
+from psmon.util import is_py_iter, arg_inflate_tuple, window_ratio, merge_dicts, check_data
 from psmon.plots import Hist, Image, XYPlot, MultiPlot
 from psmon.format import parse_fmt_xyplot, parse_fmt_hist, parse_fmt_leg
 
@@ -313,7 +313,7 @@ class XYPlotClient(PlotClient):
         self.plots = []
         self.formats = []
         self.add_legend(init_plot.leg_label, init_plot.leg_offset)
-        for xdata, ydata, format_val, legend in arg_inflate_tuple(1, init_plot.xdata, init_plot.ydata, init_plot.formats, init_plot.leg_label):
+        for xdata, ydata, format_val, legend in arg_inflate_tuple(1, check_data(init_plot.xdata), check_data(init_plot.ydata), init_plot.formats, init_plot.leg_label):
             cval = len(self.plots)
             self.formats.append((format_val, cval))
             self.plots.append(
@@ -330,7 +330,7 @@ class XYPlotClient(PlotClient):
         Updates the data in the plot - none means their was no update for this interval
         """
         if data is not None:
-            for index, (plot, data_tup, format_tup) in enumerate(zip(self.plots, arg_inflate_tuple(1, data.xdata, data.ydata, data.formats), self.formats)):
+            for index, (plot, data_tup, format_tup) in enumerate(zip(self.plots, arg_inflate_tuple(1, check_data(data.xdata), check_data(data.ydata), data.formats), self.formats)):
                 xdata, ydata, new_format = data_tup
                 old_format, cval = format_tup
                 if new_format != old_format:
@@ -347,7 +347,7 @@ class HistClient(PlotClient):
         self.hists = []
         self.formats = []
         self.add_legend(init_hist.leg_label, init_hist.leg_offset)
-        for bins, values, format_val, fill_val, legend in arg_inflate_tuple(1, init_hist.bins, init_hist.values, init_hist.formats, init_hist.fills, init_hist.leg_label):
+        for bins, values, format_val, fill_val, legend in arg_inflate_tuple(1, check_data(init_hist.bins), check_data(init_hist.values), init_hist.formats, init_hist.fills, init_hist.leg_label):
             cval = len(self.hists)
             fillLevel = 0 if fill_val else None
             self.formats.append((format_val, fill_val, cval))
@@ -367,7 +367,7 @@ class HistClient(PlotClient):
         Updates the data in the histogram - none means their was no update for this interval
         """
         if data is not None:
-            for index, (hist, data_tup, format_tup) in enumerate(zip(self.hists, arg_inflate_tuple(1, data.bins, data.values, data.formats, data.fills), self.formats)):
+            for index, (hist, data_tup, format_tup) in enumerate(zip(self.hists, arg_inflate_tuple(1, check_data(data.bins), check_data(data.values), data.formats, data.fills), self.formats)):
                 bins, values, new_format, new_fill = data_tup
                 old_format, old_fill, cval = format_tup
                 if new_format != old_format or new_fill != old_fill:

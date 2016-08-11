@@ -35,6 +35,21 @@ def convert_to_array(obj):
     else:
         return np.array([obj])
 
+
+def check_data(obj):
+    """
+    Checks that the deepest nested sequence object is a numpy array and
+    converts the object if needed.
+    """
+    if isinstance(obj, collections.Sequence):
+        if obj and (isinstance(obj[0], np.ndarray) or isinstance(obj[0], collections.Sequence)):
+            return [convert_to_array(sub_obj) for sub_obj in obj]
+        else:
+            return convert_to_array(obj)
+    else:
+        return obj
+
+
 def arg_inflate(index, *args):
     args = list(args)
     for i in range(len(args)):
