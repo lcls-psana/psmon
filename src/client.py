@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import re
 import sys
 import logging
 import argparse
@@ -17,8 +18,8 @@ def parse_cmdline():
 
     parser.add_argument(
         'topics',
-        nargs='+',
-        help='The topic from the server to suscribe too'
+        nargs='*',
+        help='the topic(s) from the server to which the client should subscribe'
     )
 
     parser.add_argument(
@@ -179,13 +180,30 @@ def parse_cmdline():
     return parser.parse_args()
 
 
-def mpl_client(client_info, plot_info):
+def plot_client(client_info, plot_info):
     render_mod = __import__('psmon.client%s'%client_info.renderer, fromlist=['main'])
     sys.exit(render_mod.main(client_info, plot_info))
 
 
-def spawn_process(client_info, plot_info):
-    proc = mp.Process(name='%s-client'%client_info.topic, target=mpl_client, args=(client_info, plot_info))
+def topic_client(client_info, plot_info):
+    # try to find out the server and port number
+    name_parse = re.match('tcp://(?P<server>\S+):(?P<port>\d+)', client_info.data_socket_url)
+    if name_parse:
+        server = name_parse.group('server')
+        port = name_parse.group('port')
+    else:
+        server = None
+        port = None
+    LOG.debug('Attempting to retrieve topic list from server %s at port %s', server, port)
+    topic_sub = app.ZMQSubscriber(client_info)
+    topics = topic_sub.data_recv()
+    LOG.info('Topic list successfully retrieved from %s', server)
+    # Now print the topic list
+    LOG.info("Available topics on %s: %s", server, topics)
+    
+
+def spawn_process(client_info, plot_info, target=plot_client):
+    proc = mp.Process(name='%s-client'%client_info.topic, target=target, args=(client_info, plot_info))
     proc.daemon = client_info.daemon
     proc.start()
 
@@ -219,28 +237,39 @@ def main():
         data_socket_url = 'tcp://%s:%d' % (args.server, args.port)
         comm_socket_url = 'tcp://%s:%d' % (args.server, args.port+config.APP_COMM_OFFSET)
 
-        proc_list = []
-        for topic in args.topics:
-            client_info = app.ClientInfo(data_socket_url, comm_socket_url, args.buffer, args.rate, args.recv_limit, topic, args.client, True)
-            LOG.info('Starting client for topic: %s', topic)
-            proc = spawn_process(client_info, plot_info)
-            proc_list.append(proc)
+        if args.topics:
+            proc_list = []
+            for topic in args.topics:
+                client_info = app.ClientInfo(data_socket_url, comm_socket_url, args.buffer, args.rate, args.recv_limit, topic, args.client, True)
+                LOG.info('Starting client for topic: %s', topic)
+                proc = spawn_process(client_info, plot_info)
+                proc_list.append(proc)
     
-        # wait for all the children to exit
-        failed_client = False
-        for proc in proc_list:
-            proc.join()
-            if proc.exitcode == 0:
-                LOG.info('%s exited successfully', proc.name)
-            else:
-                failed_client = True
-                LOG.error('%s exited with non-zero status code: %d', proc.name, proc.exitcode)
+            # wait for all the children to exit
+            failed_client = False
+            for proc in proc_list:
+                proc.join()
+                if proc.exitcode == 0:
+                    LOG.info('%s exited successfully', proc.name)
+                else:
+                    failed_client = True
+                    LOG.error('%s exited with non-zero status code: %d', proc.name, proc.exitcode)
 
-        LOG.info('All clients have exited')
+            LOG.info('All clients have exited')
 
-        # return a non-zero status code if any clients died
-        if failed_client:
-            return 1
+            # return a non-zero status code if any clients died
+            if failed_client:
+                return 1
+        else:
+            LOG.info('No topics specified - attempting to retrieve list of topics from the server')
+            client_info = app.ClientInfo(data_socket_url, comm_socket_url, args.buffer, args.rate, args.recv_limit, config.APP_TOPIC_LIST, args.client, True)
+            proc = spawn_process(client_info, plot_info, target=topic_client)
+            proc.join(config.APP_TIMEOUT)
+            # check the return code of the topic process - if it has hung it will be 'None'
+            if proc.exitcode != 0:
+                LOG.error('Failed to retrieve topic information from %s on port %d - server may be down!', args.server, args.port)
+                return 1
+
     except KeyboardInterrupt:
         print '\nExitting client!'
 

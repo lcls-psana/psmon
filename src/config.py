@@ -23,6 +23,7 @@ elif sys.flags.interactive:
 APP_SERVER = 'localhost'
 APP_PORT = 12301
 APP_COMM_OFFSET = 1
+APP_TIMEOUT = 5.0
 APP_RATE = 5.0
 APP_BUFFER = 5
 APP_CLIENT = 'pyqt'
@@ -43,6 +44,7 @@ APP_GRID = False
 APP_AUTO_ZRANGE = False
 APP_LOG = False
 APP_RESERVED_TOPIC = 'psmon-internal'
+APP_TOPIC_LIST = APP_RESERVED_TOPIC + '-topics'
 ### PYQT DEFAULT APPEARANCE CONFIG ###
 PYQT_SMALL_WIN = Resolution(640, 480)
 PYQT_LARGE_WIN = Resolution(3840, 2880)

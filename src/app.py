@@ -119,7 +119,9 @@ class ZMQPublisher(object):
         self.proxy_thread = threading.Thread(target=self._send_proxy)
         self.comm_offset = comm_offset
         self.initialized = False
-        self.cache = {}
+        self.cache = {
+            config.APP_TOPIC_LIST: []
+        }
 
     @property
     def data_endpoint(self):
@@ -189,6 +191,10 @@ class ZMQPublisher(object):
                     LOG.debug('Received data on proxy socket for topic: %s'%topic)
                 self.data_socket.send(topic + config.ZMQ_TOPIC_DELIM_CHAR, zmq.SNDMORE)
                 self.data_socket.send_pyobj(data)
+                if topic not in self.cache:
+                    self.cache[config.APP_TOPIC_LIST].append(topic)
+                    self.data_socket.send(config.APP_TOPIC_LIST + config.ZMQ_TOPIC_DELIM_CHAR, zmq.SNDMORE)
+                    self.data_socket.send_pyobj(self.cache[config.APP_TOPIC_LIST])
                 self.cache[topic] = data
             # if the data socket has inbound data check for new subs
             if self.data_socket in ready_socks:
