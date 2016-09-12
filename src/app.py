@@ -219,8 +219,8 @@ class ZMQPublisher(object):
 
     def _initialize_icp(self):
         try:
-            self.data_socket.bind_to_random_port('ipc://*')
-            self.comm_socket.bind_to_random_port('ipc://*')
+            self.data_socket.bind('ipc://*')
+            self.comm_socket.bind('ipc://*')
             LOG.info('Initialized publisher. Data socket %s, Comm socket: %s', str(self.data_endpoint), self.comm_endpoint)
             return True
         except zmq.ZMQError:

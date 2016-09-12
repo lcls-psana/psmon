@@ -11,6 +11,10 @@ Package author: Dan Damiani
 Please describe any modifications that you made to the package in the
 reverse time order.
 
+Tag: V00-01-18
+2016-09-12 Dan Damiani
+- Fix for ipc socket bind issues on newer versions of zmq
+
 Tag: V00-01-17
 2016-08-11 Dan Damiani
 - Allow list objects to be used for XYPlot and Hist data
