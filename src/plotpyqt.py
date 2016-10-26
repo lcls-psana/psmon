@@ -267,8 +267,9 @@ class ImageClient(PlotClient):
                 self.aspect_ratio = data.aspect_ratio
                 self.set_aspect(self.aspect_lock, self.aspect_ratio)
             self.im.setImage(data.image.T, autoLevels=self.info.auto_zrange)
-            self.cb.setLevels(*self.im.getLevels())
-            self.cb.setHistogramRange(*self.cb.getLevels())
+            if self.info.auto_zrange:
+              self.cb.setLevels(*self.im.getLevels())
+              self.cb.setHistogramRange(*self.cb.getLevels())
             if data.pos is not None and data.pos != self.im_pos:
                 self.im.setPos(*data.pos)
                 self.im_pos = data.pos

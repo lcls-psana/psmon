@@ -11,6 +11,10 @@ Package author: Dan Damiani
 Please describe any modifications that you made to the package in the
 reverse time order.
 
+Tag: V00-01-19
+2016-10-26 Dan Damiani
+- Fix for colorbar slider range auto-adjusting even when auto-ranging was disabled
+
 Tag: V00-01-18
 2016-09-12 Dan Damiani
 - Fix for ipc socket bind issues on newer versions of zmq
