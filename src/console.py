@@ -78,7 +78,7 @@ def main():
     except zmq.ZMQError as err:
         LOG.error('Failed to connect to server: %s', err)
     except KeyboardInterrupt:
-        print '\nExitting client!'
+        print('\nExitting client!')
 
 
 if __name__ == '__main__':

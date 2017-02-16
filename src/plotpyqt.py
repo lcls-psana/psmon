@@ -105,7 +105,7 @@ class PlotClient(object):
 
     def ani_func(self):
         # call the data update function
-        self.update(self.framegen.next())
+        self.update(next(self.framegen))
         # setup timer for calling next update call
         QtCore.QTimer.singleShot(self.rate_ms, self.ani_func)
 
@@ -453,6 +453,6 @@ class MultiPlotClient(object):
 
     def ani_func(self):
         # call the data update function
-        self.update(self.framegen.next())
+        self.update(next(self.framegen))
         # setup timer for calling next update call
         QtCore.QTimer.singleShot(self.rate_ms, self.ani_func)

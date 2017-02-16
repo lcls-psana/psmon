@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name='psmon',
-    version='0.1.3',
+    version='0.1.19',
     description='LCLS analysis monitoring',
     long_description='The psmom package is a remote data visualization tool used at LCLS for analysis monitoring',
     author='Daniel Damiani',
@@ -12,13 +12,16 @@ setup(
     package_dir={'psmon': 'src'},
     packages=['psmon'],
     install_requires=[
-        'pyqtgraph',
+        'numpy',
         'pyzmq',
+        'pyqtgraph',
+        'matplotlib',
         'ipython',
     ],
     entry_points={
         'console_scripts': [
             'psplot = psmon.client:main',
+            'psconsole = psmon.console:main',
         ]
     },
     classifiers=[
@@ -31,6 +34,7 @@ setup(
         'Operating System :: POSIX',
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
         'Topic :: Scientific/Engineering :: Visualization',
         'Topic :: Utilities',
     ],

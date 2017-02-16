@@ -271,7 +271,7 @@ def main():
                 return 1
 
     except KeyboardInterrupt:
-        print '\nExitting client!'
+        print('\nExitting client!')
 
 
 if __name__ == '__main__':

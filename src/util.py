@@ -2,8 +2,13 @@ import os
 import sys
 import numpy as np
 import collections
-from itertools import chain, izip
+from itertools import chain
 from contextlib import contextmanager
+# For Python 3 - builtin zip returns generator
+if sys.version_info < (3,):
+  from itertools import izip
+else:
+  izip = zip
 
 
 def is_py_iter(obj):

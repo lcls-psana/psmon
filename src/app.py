@@ -3,11 +3,15 @@ import re
 import sys
 import zmq
 import pwd
-import Queue
 import socket
 import logging
 import threading
 from collections import namedtuple
+# Queue module changed to queue in py3
+if sys.version_info < (3,):
+  import Queue as queue
+else:
+  import queue
 
 from psmon import config
 
@@ -87,7 +91,7 @@ class MessageHandler(object):
     def __init__(self, name, qlimit, is_pyobj):
         self.name = name
         self.is_pyobj = is_pyobj
-        self.__mqueue = Queue.Queue(maxsize=qlimit)
+        self.__mqueue = queue.Queue(maxsize=qlimit)
 
     def get(self):
         return self.__mqueue.get_nowait()
@@ -144,7 +148,7 @@ class ZMQPublisher(object):
         # set the data socket to verbose mode
         self.data_socket.setsockopt(zmq.XPUB_VERBOSE, True)
         # set the subscription filter on the proxy socket
-        self.proxy_recv_socket.setsockopt(zmq.SUBSCRIBE, "")
+        self.proxy_recv_socket.setsockopt_string(zmq.SUBSCRIBE, "")
 
         # set up the external communication sockets
         if local:
@@ -173,7 +177,7 @@ class ZMQPublisher(object):
                 raise PublishError('Cannot publish data to internally reserved topic: %s'%topic)
             if LOG.isEnabledFor(logging.DEBUG):
                 LOG.debug('Publishing data to topic: %s', topic)
-            self.proxy_send_socket.send(topic, zmq.SNDMORE)
+            self.proxy_send_socket.send_string(topic, zmq.SNDMORE)
             self.proxy_send_socket.send_pyobj(data)
 
     def _send_proxy(self):
@@ -185,20 +189,20 @@ class ZMQPublisher(object):
             ready_socks = dict(proxy_poller.poll())
             # if proxy socket has inbound data foward it to the data publisher
             if self.proxy_recv_socket in ready_socks:
-                topic = self.proxy_recv_socket.recv()
+                topic = self.proxy_recv_socket.recv_string()
                 data = self.proxy_recv_socket.recv_pyobj()
                 if LOG.isEnabledFor(logging.DEBUG):
                     LOG.debug('Received data on proxy socket for topic: %s'%topic)
-                self.data_socket.send(topic + config.ZMQ_TOPIC_DELIM_CHAR, zmq.SNDMORE)
+                self.data_socket.send_string(topic + config.ZMQ_TOPIC_DELIM_CHAR, zmq.SNDMORE)
                 self.data_socket.send_pyobj(data)
                 if topic not in self.cache:
                     self.cache[config.APP_TOPIC_LIST].append(topic)
-                    self.data_socket.send(config.APP_TOPIC_LIST + config.ZMQ_TOPIC_DELIM_CHAR, zmq.SNDMORE)
+                    self.data_socket.send_string(config.APP_TOPIC_LIST + config.ZMQ_TOPIC_DELIM_CHAR, zmq.SNDMORE)
                     self.data_socket.send_pyobj(self.cache[config.APP_TOPIC_LIST])
                 self.cache[topic] = data
             # if the data socket has inbound data check for new subs
             if self.data_socket in ready_socks:
-                topic_msg = self.data_socket.recv()
+                topic_msg = self.data_socket.recv_string()
                 if topic_msg[0] == '\x01':
                     if topic_msg[-1] != '\x00':
                         if LOG.isEnabledFor(logging.WARN):
@@ -211,7 +215,7 @@ class ZMQPublisher(object):
                             last_data = self.cache[topic]
                             if LOG.isEnabledFor(logging.DEBUG):
                                 LOG.debug('Found cached message to resend for topic: %s'%topic)
-                            self.data_socket.send(topic + config.ZMQ_TOPIC_DELIM_CHAR, zmq.SNDMORE)
+                            self.data_socket.send_string(topic + config.ZMQ_TOPIC_DELIM_CHAR, zmq.SNDMORE)
                             self.data_socket.send_pyobj(last_data)
                         except KeyError:
                             if LOG.isEnabledFor(logging.DEBUG):
@@ -275,7 +279,7 @@ class ZMQSubscriber(object):
         self.client_info = client_info
         self.context = zmq.Context()
         self.data_socket = self.context.socket(zmq.SUB)
-        self.data_socket.setsockopt(zmq.SUBSCRIBE, self.client_info.topic + config.ZMQ_TOPIC_DELIM_CHAR)
+        self.data_socket.setsockopt_string(zmq.SUBSCRIBE, self.client_info.topic + config.ZMQ_TOPIC_DELIM_CHAR)
         self.data_socket.set_hwm(self.client_info.buffer)
         self.comm_socket = self.context.socket(zmq.REQ)
         self.connected = False
@@ -378,7 +382,7 @@ class ZMQListener(object):
                         if LOG.isEnabledFor(logging.DEBUG):
                             LOG.debug('Message for handler \'%s\' processed', header)
                         self.send_reply(header, 'Message for handler processed')
-                    except Queue.Full:
+                    except queue.Full:
                         if LOG.isEnabledFor(logging.WARN):
                             LOG.warning('Message handler \'%s\' is full - request dropped', header)
                         self.send_reply(header, 'Message handler full - request dropped')

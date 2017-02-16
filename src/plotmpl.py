@@ -64,7 +64,7 @@ class PlotClient(object):
         return animation.FuncAnimation(self.figure, self.update, self.ani_func, interval=self.rate_ms)
 
     def ani_func(self):
-        yield self.framegen.next()
+        yield next(self.framegen)
 
     def set_title(self, title):
         if title is not None:
@@ -182,7 +182,7 @@ class MultiPlotClient(object):
         return animation.FuncAnimation(self.figure, self.update, self.ani_func, interval=self.rate_ms)
 
     def ani_func(self):
-        yield self.framegen.next()
+        yield next(self.framegen)
 
 
 class ImageClient(PlotClient):
