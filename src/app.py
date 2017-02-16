@@ -148,7 +148,7 @@ class ZMQPublisher(object):
         # set the data socket to verbose mode
         self.data_socket.setsockopt(zmq.XPUB_VERBOSE, True)
         # set the subscription filter on the proxy socket
-        self.proxy_recv_socket.setsockopt_string(zmq.SUBSCRIBE, "")
+        self.proxy_recv_socket.setsockopt_string(zmq.SUBSCRIBE, u"")
 
         # set up the external communication sockets
         if local:
@@ -279,7 +279,11 @@ class ZMQSubscriber(object):
         self.client_info = client_info
         self.context = zmq.Context()
         self.data_socket = self.context.socket(zmq.SUB)
-        self.data_socket.setsockopt_string(zmq.SUBSCRIBE, self.client_info.topic + config.ZMQ_TOPIC_DELIM_CHAR)
+        self.topic_str = self.client_info.topic + config.ZMQ_TOPIC_DELIM_CHAR
+        # Handle byte versus unicode strings for the topic
+        if isinstance(self.topic_str, bytes):
+          self.topic_str = self.topic_str.decode('ascii')
+        self.data_socket.setsockopt_string(zmq.SUBSCRIBE, self.topic_str)
         self.data_socket.set_hwm(self.client_info.buffer)
         self.comm_socket = self.context.socket(zmq.REQ)
         self.connected = False
