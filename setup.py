@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name='psmon',
-    version='0.1.19',
+    version='0.2.0',
     description='LCLS analysis monitoring',
     long_description='The psmom package is a remote data visualization tool used at LCLS for analysis monitoring',
     author='Daniel Damiani',
