@@ -9,7 +9,7 @@ from matplotlib import rcParams
 from matplotlib.axes._base import _process_plot_format
 
 from psmon import config
-from psmon.util import is_py_iter, arg_inflate_flat, arg_inflate_tuple, inflate_input
+from psmon.util import is_py_iter, arg_inflate_flat, arg_inflate_tuple, inflate_input, check_data
 from psmon.util import window_ratio
 from psmon.plots import Hist, Image, XYPlot, MultiPlot
 
@@ -126,7 +126,7 @@ class PlotClient(object):
         self.ax.grid(show)
 
     def update_plot_data(self, plots, x_vals, y_vals, new_fmts, old_fmts):
-        for index, (plot, data_tup, old_fmt) in enumerate(zip(plots, arg_inflate_tuple(1, x_vals, y_vals, new_fmts), old_fmts)):
+        for index, (plot, data_tup, old_fmt) in enumerate(zip(plots, arg_inflate_tuple(1, check_data(x_vals), check_data(y_vals), new_fmts), old_fmts)):
             x_val, y_val, new_fmt = data_tup
             plot.set_data(x_val, y_val)
             if new_fmt != old_fmt:
@@ -290,7 +290,7 @@ class HistClient(PlotClient):
         Takes correct bins (single or list of), histogram values (single or list of), 
         and fill configs (single or list of).
         """
-        for bin, val, fill, hist in  arg_inflate_tuple(1, corrected_bins, values, fills, self.hists):
+        for bin, val, fill, hist in arg_inflate_tuple(3, check_data(corrected_bins), check_data(values), fills, self.hists):
             if fill:
                 self.ax.fill_between(bin, 0, val, color=hist.get_color(), alpha=config.MPL_HIST_ALPHA)
 
