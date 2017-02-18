@@ -8,7 +8,7 @@ from psmon.helper import StripHelper
 
 def parse_cli():
     parser = argparse.ArgumentParser(
-        description='Psmon plot server application for testing Strip Chart objects'
+        description='Psmon plot server application: Strip Chart example'
     )
 
     def_updates = 1000
@@ -49,6 +49,20 @@ def parse_cli():
         help='use the local plot feature of the publish module'
     )
 
+    client_parser = parser.add_mutually_exclusive_group(required=False)
+
+    client_parser.add_argument(
+      '--mpl',
+      action='store_true',
+      help='use matplotlib rendering client'
+    )
+
+    client_parser.add_argument(
+      '--pyqt',
+      action='store_true',
+      help='use pyqtgraph rendering client'
+    )
+
     return parser.parse_args()
 
 
@@ -63,6 +77,10 @@ def main():
     #optional port, buffer-depth arguments.
     publish.local = args.local
     publish.client_opts.daemon = True
+    if args.mpl:
+      publish.client_opts.renderer = 'mpl'
+    elif args.pyqt:
+      publish.client_opts.renderer = 'pyqt'
 
     shelp = StripHelper(topic, points, title="Strip Chart Test")
 
@@ -77,7 +95,7 @@ def main():
         counter += 1
 
         if counter % status_rate == 0:
-            print "Processed %d updates so far" % counter
+            print("Processed %d updates so far" % counter)
 
         time.sleep(period)
 
@@ -86,4 +104,4 @@ if __name__ == '__main__':
     try:
         main()
     except KeyboardInterrupt:
-        print '\nExitting script!'
+        print('\nExitting script!')
