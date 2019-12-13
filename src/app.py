@@ -1,3 +1,5 @@
+from future import standard_library
+standard_library.install_aliases()
 import os
 import re
 import sys
@@ -12,7 +14,7 @@ import threading
 from collections import namedtuple
 # Queue module changed to queue in py3
 if sys.version_info < (3,):
-  import Queue as queue
+  import queue as queue
 else:
   import queue
 

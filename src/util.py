@@ -1,3 +1,4 @@
+from __future__ import division
 import os
 import sys
 import numpy as np
@@ -74,7 +75,7 @@ def arg_inflate_flat(index, *args):
 
 def arg_inflate_tuple(index, *args):
     if is_py_iter(args[index]):
-        return zip(*arg_inflate(index, *args))
+        return list(zip(*arg_inflate(index, *args)))
     else:
         return [args]
 

@@ -1,3 +1,4 @@
+from __future__ import division
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore
 
@@ -64,8 +65,8 @@ LINE_MAP = {
 }
 
 
-LEGEND_CENTER_X = -config.PYQT_SMALL_WIN.x/3
-LEGEND_CENTER_Y = -config.PYQT_SMALL_WIN.y/4
+LEGEND_CENTER_X = -config.PYQT_SMALL_WIN.x//3
+LEGEND_CENTER_Y = -config.PYQT_SMALL_WIN.y//4
 LEGEND_TUPLE_SCALE = 100
 LEGEND_TUPLE_MIN = 0.001
 
